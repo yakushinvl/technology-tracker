@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import TechnologyCard from './components/TechnologyCard';
 import ProgressHeader from './components/ProgressHeader';
+import QuickActions from './components/QuickActions';
+import TechnologyFilter from './components/TechnologyFilter';
 
 function App() {
-    const technologies = [
+    const [technologies, setTechnologies] = useState([
         {
             id: 1,
             title: 'React Components',
@@ -35,24 +37,53 @@ function App() {
             description: 'Настройка маршрутизации в React-приложениях, создание многостраничных интерфейсов',
             status: 'not-started'
         }
-    ];
+    ]);
+
+    const [filter, setFilter] = useState('all');
+
+    // Функция изменения статуса технологии
+    const handleStatusChange = (id, newStatus) => {
+        setTechnologies(prevTech =>
+            prevTech.map(tech =>
+                tech.id === id ? { ...tech, status: newStatus } : tech
+            )
+        );
+    };
+
+    // Фильтрация технологий
+    const filteredTechnologies = technologies.filter(tech => {
+        if (filter === 'all') return true;
+        return tech.status === filter;
+    });
 
     return (
         <div className="App">
             <div className="app-container">
                 <ProgressHeader technologies={technologies} />
+                <QuickActions
+                    technologies={technologies}
+                    setTechnologies={setTechnologies}
+                />
                 <main className="main-content">
                     <h1>Трекер изучения технологий</h1>
                     <p className="subtitle">
                         Отслеживайте ваш прогресс в изучении современных технологий разработки
                     </p>
+
+                    <TechnologyFilter
+                        currentFilter={filter}
+                        onFilterChange={setFilter}
+                    />
+
                     <div className="technologies-grid">
-                        {technologies.map(tech => (
+                        {filteredTechnologies.map(tech => (
                             <TechnologyCard
                                 key={tech.id}
+                                id={tech.id}
                                 title={tech.title}
                                 description={tech.description}
                                 status={tech.status}
+                                onStatusChange={handleStatusChange}
                             />
                         ))}
                     </div>

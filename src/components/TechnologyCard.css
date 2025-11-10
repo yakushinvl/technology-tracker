@@ -6,6 +6,8 @@
     background: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
 }
 
 .technology-card:hover {
@@ -51,6 +53,7 @@
     font-weight: 500;
     margin-left: 12px;
     white-space: nowrap;
+    transition: all 0.3s ease;
 }
 
 .status-badge.completed {
@@ -71,6 +74,30 @@
 .card-description {
     color: #546e7a;
     line-height: 1.5;
-    margin: 0;
+    margin: 0 0 10px 0;
     font-size: 1em;
+}
+
+.click-hint {
+    font-size: 0.8em;
+    color: #78909c;
+    text-align: center;
+    padding: 5px;
+    border-top: 1px dashed #e0e0e0;
+    margin-top: 10px;
+}
+
+/* Анимация изменения статуса */
+.technology-card {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.technology-card.status-changing {
+    animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
 }
