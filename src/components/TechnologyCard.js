@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './TechnologyCard.css';
 
-function TechnologyCard({ id, title, description, status, onStatusChange }) {
-    const handleClick = () => {
+function TechnologyCard({ id, title, description, status, notes, onStatusChange, onNotesChange }) {
+    const [isNotesVisible, setIsNotesVisible] = useState(false);
+
+    const handleCardClick = () => {
         const statusOrder = ['not-started', 'in-progress', 'completed'];
         const currentIndex = statusOrder.indexOf(status);
         const nextIndex = (currentIndex + 1) % statusOrder.length;
@@ -11,10 +13,20 @@ function TechnologyCard({ id, title, description, status, onStatusChange }) {
         onStatusChange(id, nextStatus);
     };
 
+    const handleNotesClick = (e) => {
+        e.stopPropagation();
+        setIsNotesVisible(!isNotesVisible);
+    };
+
+    const handleNotesChange = (e) => {
+        e.stopPropagation();
+        onNotesChange(id, e.target.value);
+    };
+
     return (
         <div
             className={`technology-card ${status}`}
-            onClick={handleClick}
+            onClick={handleCardClick}
         >
             <div className="card-header">
                 <h3 className="card-title">{title}</h3>
@@ -26,7 +38,34 @@ function TechnologyCard({ id, title, description, status, onStatusChange }) {
         </span>
             </div>
             <p className="card-description">{description}</p>
-            <div className="click-hint">Нажмите для смены статуса</div>
+
+            <div className="card-actions">
+                <button
+                    className="notes-toggle-btn"
+                    onClick={handleNotesClick}
+                >
+                    📝 {notes ? 'Заметки (' + notes.length + ')' : 'Добавить заметки'}
+                </button>
+                <div className="click-hint">Нажмите на карточку для смены статуса</div>
+            </div>
+
+            {isNotesVisible && (
+                <div className="notes-section" onClick={(e) => e.stopPropagation()}>
+                    <h4>Мои заметки:</h4>
+                    <textarea
+                        value={notes || ''}
+                        onChange={handleNotesChange}
+                        placeholder="Записывайте сюда важные моменты, ссылки, примеры кода..."
+                        rows="4"
+                        className="notes-textarea"
+                    />
+                    <div className="notes-hint">
+                        {notes && notes.length > 0
+                            ? `Заметка сохранена (${notes.length} символов)`
+                            : 'Добавьте заметку для этой технологии'}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
