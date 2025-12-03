@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './TechnologyCard.css';
 
 function TechnologyCard({ id, title, description, status, notes, onStatusChange, onNotesChange }) {
     const [isNotesVisible, setIsNotesVisible] = useState(false);
+    const navigate = useNavigate();
 
     const handleCardClick = () => {
         const statusOrder = ['not-started', 'in-progress', 'completed'];
@@ -23,6 +25,11 @@ function TechnologyCard({ id, title, description, status, notes, onStatusChange,
         onNotesChange(id, e.target.value);
     };
 
+    const handleDetailsClick = (e) => {
+        e.stopPropagation();
+        navigate(`/technology/${id}`);
+    };
+
     return (
         <div
             className={`technology-card ${status}`}
@@ -31,11 +38,11 @@ function TechnologyCard({ id, title, description, status, notes, onStatusChange,
             <div className="card-header">
                 <h3 className="card-title">{title}</h3>
                 <span className={`status-badge ${status}`}>
-          {status === 'completed' && '✅'}
+                    {status === 'completed' && '✅'}
                     {status === 'in-progress' && '🔄'}
                     {status === 'not-started' && '⏳'}
                     {getStatusText(status)}
-        </span>
+                </span>
             </div>
             <p className="card-description">{description}</p>
 
@@ -45,6 +52,12 @@ function TechnologyCard({ id, title, description, status, notes, onStatusChange,
                     onClick={handleNotesClick}
                 >
                     📝 {notes ? 'Заметки (' + notes.length + ')' : 'Добавить заметки'}
+                </button>
+                <button
+                    className="details-btn"
+                    onClick={handleDetailsClick}
+                >
+                    🔍 Подробнее
                 </button>
                 <div className="click-hint">Нажмите на карточку для смены статуса</div>
             </div>

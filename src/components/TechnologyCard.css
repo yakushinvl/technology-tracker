@@ -85,6 +85,7 @@
     margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid #f0f0f0;
+    gap: 10px;
 }
 
 .notes-toggle-btn {
@@ -99,6 +100,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    flex: 1;
 }
 
 .notes-toggle-btn:hover {
@@ -106,11 +108,31 @@
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
+.details-btn {
+    background: linear-gradient(135deg, #36D1DC, #5B86E5);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+}
+
+.details-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(54, 209, 220, 0.3);
+}
+
 .click-hint {
     font-size: 0.8em;
     color: #78909c;
     text-align: right;
-    flex: 1;
+    flex: 2;
 }
 
 .notes-section {
@@ -186,8 +208,16 @@
         align-items: stretch;
     }
 
+    .notes-toggle-btn,
+    .details-btn,
     .click-hint {
+        width: 100%;
         text-align: center;
+        flex: none;
+    }
+
+    .click-hint {
+        order: 3;
     }
 
     .technology-card {

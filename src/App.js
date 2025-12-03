@@ -1,95 +1,83 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import useTechnologies from './hooks/useTechnologies';
+import Navigation from './components/Navigation';
+import Home from './pages/Home';
+import Technologies from './pages/Technologies';
+import TechnologyDetail from './pages/TechnologyDetail';
+import AddTechnology from './pages/AddTechnology';
+import Statistics from './pages/Statistics';
+import Settings from './pages/Settings';
 import './App.css';
-import TechnologyCard from './components/TechnologyCard';
-import ProgressHeader from './components/ProgressHeader';
-import QuickActions from './components/QuickActions';
-import TechnologyFilter from './components/TechnologyFilter';
 
 function App() {
-    const [technologies, setTechnologies] = useState([
-        {
-            id: 1,
-            title: 'React Components',
-            description: 'Изучение функциональных и классовых компонентов, их жизненного цикла и лучших практик использования',
-            status: 'completed'
-        },
-        {
-            id: 2,
-            title: 'JSX Syntax',
-            description: 'Освоение синтаксиса JSX, работа с выражениями JavaScript в разметке, понимание различий с HTML',
-            status: 'in-progress'
-        },
-        {
-            id: 3,
-            title: 'State Management',
-            description: 'Работа с состоянием компонентов, изучение хуков useState и useEffect, управление сложным состоянием',
-            status: 'not-started'
-        },
-        {
-            id: 4,
-            title: 'Props и Data Flow',
-            description: 'Передача данных между компонентами через props, понимание однонаправленного потока данных',
-            status: 'completed'
-        },
-        {
-            id: 5,
-            title: 'React Router',
-            description: 'Настройка маршрутизации в React-приложениях, создание многостраничных интерфейсов',
-            status: 'not-started'
-        }
-    ]);
-
-    const [filter, setFilter] = useState('all');
-
-    // Функция изменения статуса технологии
-    const handleStatusChange = (id, newStatus) => {
-        setTechnologies(prevTech =>
-            prevTech.map(tech =>
-                tech.id === id ? { ...tech, status: newStatus } : tech
-            )
-        );
-    };
-
-    // Фильтрация технологий
-    const filteredTechnologies = technologies.filter(tech => {
-        if (filter === 'all') return true;
-        return tech.status === filter;
-    });
+    const {
+        technologies,
+        updateStatus,
+        updateNotes,
+        addTechnology,
+        deleteTechnology,
+        updateTechnology,
+        progress,
+        markAllCompleted,
+        resetAllStatuses,
+        randomNextTechnology,
+        exportData,
+        clearAllData
+    } = useTechnologies();
 
     return (
-        <div className="App">
-            <div className="app-container">
-                <ProgressHeader technologies={technologies} />
-                <QuickActions
-                    technologies={technologies}
-                    setTechnologies={setTechnologies}
-                />
-                <main className="main-content">
-                    <h1>Трекер изучения технологий</h1>
-                    <p className="subtitle">
-                        Отслеживайте ваш прогресс в изучении современных технологий разработки
-                    </p>
-
-                    <TechnologyFilter
-                        currentFilter={filter}
-                        onFilterChange={setFilter}
-                    />
-
-                    <div className="technologies-grid">
-                        {filteredTechnologies.map(tech => (
-                            <TechnologyCard
-                                key={tech.id}
-                                id={tech.id}
-                                title={tech.title}
-                                description={tech.description}
-                                status={tech.status}
-                                onStatusChange={handleStatusChange}
+        <Router>
+            <div className="App">
+                <Navigation />
+                <div className="app-container">
+                    <Routes>
+                        <Route path="/" element={
+                            <Home
+                                technologies={technologies}
+                                progress={progress}
+                                randomNextTechnology={randomNextTechnology}
                             />
-                        ))}
-                    </div>
-                </main>
+                        } />
+                        <Route path="/technologies" element={
+                            <Technologies
+                                technologies={technologies}
+                                updateStatus={updateStatus}
+                                updateNotes={updateNotes}
+                                markAllCompleted={markAllCompleted}
+                                resetAllStatuses={resetAllStatuses}
+                                randomNextTechnology={randomNextTechnology}
+                            />
+                        } />
+                        <Route path="/technology/:techId" element={
+                            <TechnologyDetail
+                                technologies={technologies}
+                                updateStatus={updateStatus}
+                                updateNotes={updateNotes}
+                                deleteTechnology={deleteTechnology}
+                                updateTechnology={updateTechnology}
+                            />
+                        } />
+                        <Route path="/add-technology" element={
+                            <AddTechnology addTechnology={addTechnology} />
+                        } />
+                        <Route path="/statistics" element={
+                            <Statistics
+                                technologies={technologies}
+                                progress={progress}
+                                exportData={exportData}
+                            />
+                        } />
+                        <Route path="/settings" element={
+                            <Settings
+                                clearAllData={clearAllData}
+                                exportData={exportData}
+                            />
+                        } />
+                    </Routes>
+                </div>
             </div>
-        </div>
+        </Router>
     );
 }
 

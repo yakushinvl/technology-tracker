@@ -1,5 +1,4 @@
-// hooks/useTechnologies.js
-import useLocalStorage from './useLocalStorage';
+import { useState, useEffect } from 'react';
 
 const initialTechnologies = [
     {
@@ -40,7 +39,15 @@ const initialTechnologies = [
 ];
 
 function useTechnologies() {
-    const [technologies, setTechnologies] = useLocalStorage('techTrackerData', initialTechnologies);
+    const [technologies, setTechnologies] = useState(() => {
+        const savedData = localStorage.getItem('techTrackerData');
+        return savedData ? JSON.parse(savedData) : initialTechnologies;
+    });
+
+    // Сохраняем в localStorage при изменении
+    useEffect(() => {
+        localStorage.setItem('techTrackerData', JSON.stringify(technologies));
+    }, [technologies]);
 
     const updateStatus = (techId, newStatus) => {
         setTechnologies(prev =>
@@ -54,6 +61,28 @@ function useTechnologies() {
         setTechnologies(prev =>
             prev.map(tech =>
                 tech.id === techId ? { ...tech, notes: newNotes } : tech
+            )
+        );
+    };
+
+    const addTechnology = (newTech) => {
+        const techWithId = {
+            ...newTech,
+            id: Date.now(), // Простой способ генерации ID
+            notes: ''
+        };
+        setTechnologies(prev => [...prev, techWithId]);
+        return techWithId;
+    };
+
+    const deleteTechnology = (techId) => {
+        setTechnologies(prev => prev.filter(tech => tech.id !== techId));
+    };
+
+    const updateTechnology = (techId, updatedFields) => {
+        setTechnologies(prev =>
+            prev.map(tech =>
+                tech.id === techId ? { ...tech, ...updatedFields } : tech
             )
         );
     };
@@ -80,27 +109,56 @@ function useTechnologies() {
         const notStartedTech = technologies.filter(tech => tech.status === 'not-started');
         if (notStartedTech.length === 0) {
             alert('Все технологии уже начаты или завершены!');
-            return;
+            return null;
         }
+        return notStartedTech[Math.floor(Math.random() * notStartedTech.length)];
+    };
 
-        const randomTech = notStartedTech[Math.floor(Math.random() * notStartedTech.length)];
-        setTechnologies(prevTech =>
-            prevTech.map(tech =>
-                tech.id === randomTech.id ? { ...tech, status: 'in-progress' } : tech
-            )
-        );
+    const exportData = () => {
+        const data = {
+            exportedAt: new Date().toISOString(),
+            technologies: technologies,
+            statistics: {
+                total: technologies.length,
+                completed: technologies.filter(t => t.status === 'completed').length,
+                inProgress: technologies.filter(t => t.status === 'in-progress').length,
+                notStarted: technologies.filter(t => t.status === 'not-started').length,
+                progress: calculateProgress()
+            }
+        };
 
-        alert(`Следующая технология: ${randomTech.title}`);
+        const dataStr = JSON.stringify(data, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `tech-tracker-export-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+
+        return data;
+    };
+
+    const clearAllData = () => {
+        if (window.confirm('Вы уверены, что хотите удалить все данные? Это действие нельзя отменить.')) {
+            setTechnologies([]);
+            localStorage.removeItem('techTrackerData');
+        }
     };
 
     return {
         technologies,
         updateStatus,
         updateNotes,
+        addTechnology,
+        deleteTechnology,
+        updateTechnology,
         progress: calculateProgress(),
         markAllCompleted,
         resetAllStatuses,
-        randomNextTechnology
+        randomNextTechnology,
+        exportData,
+        clearAllData
     };
 }
 
